@@ -8,10 +8,26 @@ const app = express();
 
 // app.use(morgan("combined")); // we can use tiny combined
 
-app.use(cors("*"));
 app.use(helmet());
-
 app.use(express.json());
+
+const whitelist = [
+  "http://example.com",
+  "http://example2.com",
+  "http://127.0.0.1:5500",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.includes(origin)) {
+      console.log(origin);
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by cors"));
+    }
+  },
+};
+app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
   res.cookie("session", "1", {
